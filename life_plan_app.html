@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LifePlan"/>
+<meta name="theme-color" content="#0D1117"/>
+<title>An's LifePlan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0D1117;
+  --surface: #161B22;
+  --surface2: #1C2333;
+  --surface3: #21283B;
+  --border: rgba(255,255,255,0.06);
+  --text: #E6EDF3;
+  --text2: #8B949E;
+  --text3: #484F58;
+  --accent: #F78166;
+  --accent2: #FFA657;
+  --blue: #58A6FF;
+  --green: #3FB950;
+  --purple: #BC8CFF;
+  --teal: #39D2C0;
+  --red: #F85149;
+  --amber: #D29922;
+  --pink: #F778BA;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: 'DM Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased;}
+
+/* ── App shell ── */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+
+/* ── Top bar ── */
+.topbar{
+  padding:calc(var(--safe-top) + 8px) 16px 10px;
+  background:var(--bg);
+  position:relative;z-index:10;
+  border-bottom:1px solid var(--border);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;}
+.topbar h1{font-size:20px;font-weight:800;letter-spacing:-0.5px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.date-pill{
+  font-family:var(--mono);font-size:11px;color:var(--text2);
+  background:var(--surface);padding:4px 10px;border-radius:20px;
+  border:1px solid var(--border);
+}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:4px;letter-spacing:0.3px;}
+
+/* ── Tab bar ── */
+.tabbar{
+  display:flex;background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:4px 8px calc(var(--safe-bot) + 4px);
+  gap:4px;
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 0 4px;border:none;background:transparent;
+  color:var(--text3);font-size:10px;font-family:var(--font);
+  font-weight:600;cursor:pointer;border-radius:12px;
+  transition:all 0.2s;position:relative;
+}
+.tab.active{color:var(--accent);background:rgba(247,129,102,0.08);}
+.tab svg{width:20px;height:20px;stroke-width:1.8;}
+.tab-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--accent);position:absolute;top:3px;right:calc(50% - 14px);
+  display:none;
+}
+.tab.active .tab-dot{display:block;}
+
+/* ── Content ── */
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+.page{display:none;padding:16px 14px 24px;min-height:100%;}
+.page.active{display:block;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Glass card ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:14px;overflow:hidden;
+  transition:transform 0.15s;
+}
+.card-hdr{
+  padding:12px 16px 10px;
+  display:flex;align-items:center;gap:9px;
+  font-size:13px;font-weight:700;letter-spacing:-0.2px;
+  border-bottom:1px solid var(--border);
+}
+.card-hdr .icon{font-size:16px;}
+.card-body{padding:12px 14px 14px;}
+
+/* ── Section label ── */
+.sec{
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;color:var(--text3);
+  margin:20px 0 10px 4px;
+}
+.sec:first-child{margin-top:4px;}
+
+/* ── TODAY page ── */
+.greeting{font-size:26px;font-weight:800;letter-spacing:-0.8px;line-height:1.15;}
+.greeting-accent{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.day-label{font-size:13px;color:var(--text2);margin-top:4px;margin-bottom:16px;}
+
+/* Now card */
+.now-card{
+  background:linear-gradient(135deg,rgba(247,129,102,0.12),rgba(255,166,87,0.06));
+  border:1px solid rgba(247,129,102,0.2);
+  border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.now-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));border-radius:4px 0 0 4px;
+}
+.now-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;}
+.now-time{font-family:var(--mono);font-size:13px;color:var(--accent2);margin-top:4px;}
+.now-activity{font-size:15px;font-weight:700;margin-top:4px;line-height:1.3;}
+.now-next{font-size:11px;color:var(--text2);margin-top:6px;}
+
+/* Schedule slot */
+.slot{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:9px 14px;position:relative;
+  transition:opacity 0.2s;
+}
+.slot+.slot{border-top:1px solid var(--border);}
+.slot.past{opacity:0.3;}
+.slot.now-slot{background:rgba(247,129,102,0.04);}
+.slot-time{
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  min-width:40px;text-align:right;padding-top:2px;
+}
+.slot-line{
+  width:2px;min-height:100%;border-radius:2px;
+  position:relative;flex-shrink:0;margin-top:3px;
+}
+.slot-line::before{
+  content:'';position:absolute;top:0;left:-3px;
+  width:8px;height:8px;border-radius:50%;
+}
+.slot-text{flex:1;font-size:13px;line-height:1.45;}
+.slot-tag{
+  display:inline-block;font-size:9px;font-weight:700;
+  padding:1px 6px;border-radius:5px;margin-left:5px;
+  vertical-align:middle;letter-spacing:0.3px;
+}
+
+/* Color util */
+.c-red{color:var(--red)}.c-blue{color:var(--blue)}.c-green{color:var(--green)}
+.c-purple{color:var(--purple)}.c-teal{color:var(--teal)}.c-amber{color:var(--amber)}
+.c-accent{color:var(--accent)}.c-pink{color:var(--pink)}.c-text2{color:var(--text2)}
+.bg-red{background:var(--red)}.bg-blue{background:var(--blue)}.bg-green{background:var(--green)}
+.bg-purple{background:var(--purple)}.bg-teal{background:var(--teal)}.bg-amber{background:var(--amber)}
+.bg-accent{background:var(--accent)}.bg-pink{background:var(--pink)}.bg-surface{background:var(--surface2)}
+
+/* ── HABITS page ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 10px;text-align:center;
+}
+.stat-val{font-size:26px;font-weight:800;letter-spacing:-1px;}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;letter-spacing:0.5px;}
+
+.prog-wrap{
+  background:var(--surface3);border-radius:8px;height:6px;
+  margin:8px 0 4px;overflow:hidden;
+}
+.prog-bar{height:100%;border-radius:8px;transition:width 0.5s cubic-bezier(0.22,1,0.36,1);
+  background:linear-gradient(90deg,var(--green),var(--teal));}
+.prog-text{font-size:11px;color:var(--text2);text-align:right;font-family:var(--mono);}
+
+.habit{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px;cursor:pointer;
+  transition:background 0.12s;
+}
+.habit+.habit{border-top:1px solid var(--border);}
+.habit:active{background:var(--surface3);}
+.hcheck{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--text3);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s;font-size:14px;color:transparent;
+}
+.hcheck.done{border-color:transparent;color:#fff;transform:scale(1);}
+@keyframes checkPop{0%{transform:scale(0.5)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.hcheck.done{animation:checkPop 0.3s ease;}
+.htext{flex:1;font-size:13.5px;font-weight:500;transition:all 0.2s;}
+.htext.done{opacity:0.35;text-decoration:line-through;}
+.hcat{
+  font-size:9px;font-weight:700;padding:3px 7px;
+  border-radius:6px;color:#fff;letter-spacing:0.3px;
+}
+
+/* ── DEADLINES page ── */
+.urgent-card{
+  background:linear-gradient(135deg,rgba(248,81,73,0.15),rgba(248,81,73,0.05));
+  border:1px solid rgba(248,81,73,0.25);
+  border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.urgent-icon{font-size:28px;flex-shrink:0;}
+.urgent-title{font-size:14px;font-weight:800;color:var(--red);}
+.urgent-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+.dl-item{
+  display:flex;align-items:center;gap:14px;padding:12px 16px;
+}
+.dl-item+.dl-item{border-top:1px solid var(--border);}
+.dl-days{
+  min-width:48px;text-align:center;
+  font-family:var(--mono);font-weight:800;line-height:1;
+}
+.dl-days .num{font-size:22px;}
+.dl-days .unit{font-size:9px;color:var(--text3);font-weight:500;margin-top:2px;display:block;}
+.dl-info{flex:1;}
+.dl-title{font-size:13px;font-weight:700;}
+.dl-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.dl-badge{
+  font-size:9px;font-weight:700;padding:3px 8px;
+  border-radius:6px;color:#fff;letter-spacing:0.3px;
+}
+
+/* ── Install banner ── */
+.install-banner{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 16px;font-size:12px;color:var(--text2);
+  display:none;text-align:center;
+}
+.install-banner.show{display:block;}
+.install-banner strong{color:var(--accent);}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:0;background:transparent;}
+
+/* ── Streak flame ── */
+.streak-row{
+  display:flex;gap:3px;margin-top:6px;
+}
+.streak-dot{
+  width:12px;height:12px;border-radius:3px;
+  background:var(--surface3);transition:background 0.3s;
+}
+.streak-dot.filled{background:var(--green);}
+.streak-dot.today{border:1.5px solid var(--accent);background:transparent;}
+.streak-dot.today.filled{background:var(--green);border-color:var(--green);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div class="install-banner" id="install-banner">
+  📲 Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install
+</div>
+
+<div class="topbar">
+  <div class="topbar-row">
+    <h1>LifePlan</h1>
+    <span class="date-pill" id="date-pill"></span>
+  </div>
+  <div class="topbar-sub">Master of Computing · ANU · Sem 1 2026</div>
+</div>
+
+<div id="content">
+  <div id="page-today" class="page active"></div>
+  <div id="page-habits" class="page"></div>
+  <div id="page-deadlines" class="page"></div>
+</div>
+
+<div class="tabbar">
+  <button class="tab active" data-tab="today">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span class="tab-dot"></span>Today
+  </button>
+  <button class="tab" data-tab="habits">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span class="tab-dot"></span>Habits
+  </button>
+  <button class="tab" data-tab="deadlines">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span class="tab-dot"></span>Deadlines
+  </button>
+</div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════════
+const COLORS = {
+  red:"var(--red)",blue:"var(--blue)",green:"var(--green)",purple:"var(--purple)",
+  teal:"var(--teal)",amber:"var(--amber)",accent:"var(--accent)",pink:"var(--pink)",
+  navy:"var(--text3)",text2:"var(--text2)"
+};
+const SCHEDULE={
+1:[
+{t:"8:00",a:"Wake up — water, stretch",c:"teal"},
+{t:"8:20",a:"Shower + breakfast",c:"teal"},
+{t:"8:50",a:"Journal: 3 goals + gratitude",c:"amber"},
+{t:"9:10",a:"AI lecture review + mini-quiz prep",c:"red",tag:"AI",tc:"red"},
+{t:"11:10",a:"Logic self-study (prep Wed tutorial)",c:"blue",tag:"Logic",tc:"blue"},
+{t:"12:30",a:"Lunch — real break, no screens",c:"teal"},
+{t:"13:15",a:"AI assignment work",c:"red",tag:"AI",tc:"red"},
+{t:"14:00",a:"AI LecA — Theatre 2",c:"red",tag:"CLASS",tc:"red"},
+{t:"15:30",a:"Data Mining self-study + online quiz",c:"teal",tag:"DM",tc:"teal"},
+{t:"17:30",a:"Walk 20 min / gym",c:"green",tag:"Fitness",tc:"green"},
+{t:"18:30",a:"Dinner",c:"teal"},
+{t:"19:30",a:"Freelance: client work / portfolio",c:"purple",tag:"Freelance",tc:"purple"},
+{t:"20:30",a:"Light Logic practice",c:"blue"},
+{t:"22:00",a:"Wind-down — dim lights",c:"text2"},
+{t:"23:30",a:"Read / meditate",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+2:[
+{t:"7:30",a:"Wake early — quick breakfast",c:"teal"},
+{t:"8:15",a:"Cleaning Work (side job)",c:"amber",tag:"JOB",tc:"amber"},
+{t:"12:30",a:"Lunch on-site",c:"teal"},
+{t:"13:30",a:"Cleaning continues",c:"amber",tag:"JOB",tc:"amber"},
+{t:"15:30",a:"Finish work — travel + refresh",c:"teal"},
+{t:"16:00",a:"AI LecB — Theatre 1.28A",c:"red",tag:"CLASS",tc:"red"},
+{t:"18:00",a:"Dinner",c:"teal"},
+{t:"19:00",a:"Short walk / light stretching",c:"green"},
+{t:"19:30",a:"Content: brainstorm / outline article",c:"purple",tag:"Content",tc:"purple"},
+{t:"20:30",a:"Rest — no heavy study tonight",c:"text2"},
+{t:"22:30",a:"Wind-down",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+3:[
+{t:"8:00",a:"Wake up — morning routine",c:"teal"},
+{t:"8:50",a:"Journal + today's priorities",c:"amber"},
+{t:"9:00",a:"Freelance coding (Upwork/Fiverr)",c:"purple",tag:"Freelance",tc:"purple"},
+{t:"10:30",a:"Travel to campus — prep Logic",c:"teal"},
+{t:"11:00",a:"Logic TutA — ARRIVE EARLY!",c:"red",tag:"⚠ TEST",tc:"red"},
+{t:"12:00",a:"Data Mining Drop-in DroA",c:"teal",tag:"DM",tc:"teal"},
+{t:"13:30",a:"Lunch on campus",c:"teal"},
+{t:"14:30",a:"Data Mining Rattle practicals",c:"teal",tag:"DM",tc:"teal"},
+{t:"16:00",a:"AI ComA — Rm N109",c:"red",tag:"CLASS",tc:"red"},
+{t:"17:00",a:"Logic LecA — HC Coomb",c:"blue",tag:"CLASS",tc:"blue"},
+{t:"19:00",a:"Dinner",c:"teal"},
+{t:"19:45",a:"Content writing block",c:"purple",tag:"Content",tc:"purple"},
+{t:"21:00",a:"AI mini-quiz review",c:"red"},
+{t:"22:00",a:"Wind-down",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+4:[
+{t:"7:30",a:"Early rise — shower, breakfast",c:"teal"},
+{t:"8:15",a:"Commute to Hive, CSIT L1",c:"teal"},
+{t:"9:00",a:"TechLauncher FYP sprint",c:"purple",tag:"FYP",tc:"purple"},
+{t:"10:45",a:"✅ CHECK-IN #1 before 11am",c:"accent",tag:"⚠ MANDATORY",tc:"accent"},
+{t:"11:00",a:"FYP — team collaboration",c:"purple",tag:"FYP",tc:"purple"},
+{t:"12:00",a:"Logic LecB — HC Coomb",c:"blue",tag:"CLASS",tc:"blue"},
+{t:"13:00",a:"Lunch + FYP team sync",c:"teal"},
+{t:"14:00",a:"FYP sprint continues",c:"purple",tag:"FYP",tc:"purple"},
+{t:"14:15",a:"✅ CHECK-IN #2 after 2pm",c:"accent",tag:"⚠ MANDATORY",tc:"accent"},
+{t:"15:00",a:"FYP: push code, sprint notes",c:"purple"},
+{t:"17:00",a:"Walk home (exercise)",c:"green",tag:"Fitness",tc:"green"},
+{t:"18:00",a:"Dinner + FYP log entry",c:"teal"},
+{t:"19:30",a:"Prep Friday: Data Mining material",c:"teal"},
+{t:"21:00",a:"Content / freelance admin",c:"purple"},
+{t:"22:30",a:"Wind-down",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+5:[
+{t:"8:00",a:"Wake up — morning routine",c:"teal"},
+{t:"8:50",a:"Review Data Mining notes",c:"teal",tag:"DM",tc:"teal"},
+{t:"9:00",a:"Data Mining LecB — Cinema 1.02",c:"teal",tag:"CLASS",tc:"teal"},
+{t:"11:00",a:"Logic practice problems",c:"blue",tag:"Logic",tc:"blue"},
+{t:"13:00",a:"Logic LecC + AI TutA",c:"red",tag:"CLASS",tc:"red"},
+{t:"15:00",a:"AI assignment deep work",c:"red",tag:"AI",tc:"red"},
+{t:"17:30",a:"Gym / outdoor run",c:"green",tag:"Fitness",tc:"green"},
+{t:"19:00",a:"Dinner",c:"teal"},
+{t:"19:45",a:"Content: publish / schedule",c:"purple",tag:"Content",tc:"purple"},
+{t:"21:00",a:"Weekly review",c:"blue"},
+{t:"22:00",a:"Wind-down",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+6:[
+{t:"8:30",a:"Slow morning — natural wake",c:"teal"},
+{t:"9:00",a:"Breakfast + plan (3 tasks max)",c:"amber"},
+{t:"9:30",a:"Freelance coding — main block",c:"purple",tag:"Freelance",tc:"purple"},
+{t:"12:30",a:"Lunch",c:"teal"},
+{t:"13:30",a:"AI / DM assignment session",c:"red",tag:"Study",tc:"red"},
+{t:"16:00",a:"Content creation block",c:"purple",tag:"Content",tc:"purple"},
+{t:"17:30",a:"Gym / run (40+ min)",c:"green",tag:"Fitness",tc:"green"},
+{t:"19:30",a:"Dinner + social / call family",c:"teal"},
+{t:"21:00",a:"Relax: gaming, Netflix 🎮",c:"text2"},
+{t:"23:00",a:"Wind-down",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}],
+0:[
+{t:"9:00",a:"Rest morning — slow breakfast",c:"teal"},
+{t:"9:45",a:"Meal prep for the week",c:"amber"},
+{t:"11:00",a:"Logic self-study (week prep)",c:"blue",tag:"Logic",tc:"blue"},
+{t:"12:30",a:"Data Mining quiz + review",c:"teal",tag:"DM",tc:"teal"},
+{t:"14:00",a:"Lunch",c:"teal"},
+{t:"14:30",a:"Freelance: pitch / portfolio",c:"purple",tag:"Freelance",tc:"purple"},
+{t:"16:00",a:"Self-care: walk, stretch",c:"green"},
+{t:"17:30",a:"Weekly review — habit tracker",c:"blue"},
+{t:"18:30",a:"Dinner",c:"teal"},
+{t:"19:30",a:"Set weekly goals + deadlines",c:"blue"},
+{t:"21:00",a:"Wind-down: no screens",c:"text2"},
+{t:"0:00",a:"Sleep",c:"text2"}]
+};
+
+const HABITS=[
+{id:"h1", text:"Wake up by 8:00 AM",            cat:"Sleep",    cc:"amber"},
+{id:"h2", text:"Morning journal (3 goals)",      cat:"Mind",     cc:"accent"},
+{id:"h3", text:"AI: lecture / mini-quiz",        cat:"AI",       cc:"red"},
+{id:"h4", text:"Logic: self-study block",        cat:"Logic",    cc:"blue"},
+{id:"h5", text:"DM: online quiz completed",      cat:"DM",       cc:"teal"},
+{id:"h6", text:"FYP: Thu check-in ×2",          cat:"FYP",      cc:"purple"},
+{id:"h7", text:"Freelance: coding work",         cat:"$",        cc:"purple"},
+{id:"h8", text:"Content: article progress",      cat:"$",        cc:"pink"},
+{id:"h9", text:"Exercise / Walk 20+ min",        cat:"Body",     cc:"green"},
+{id:"h10",text:"Pomodoro blocks completed",      cat:"Focus",    cc:"blue"},
+{id:"h11",text:"In bed by 12:00 AM",             cat:"Sleep",    cc:"amber"},
+{id:"h12",text:"No screens 30 min pre-bed",      cat:"Sleep",    cc:"amber"},
+];
+
+const DEADLINES=[
+{title:"Data Mining Ass 1",sub:"COMP8410 — Start immediately",date:"2026-03-28",co:"DM",u:1},
+{title:"AI Quiz 1 (Search)",sub:"COMP3620 — Revise BFS/DFS/A*",date:"2026-03-30",co:"AI"},
+{title:"AI Assignment 1",sub:"COMP3620 — 100% late penalty",date:"2026-04-03",co:"AI",u:1},
+{title:"AI Quiz 2 (KRR)",sub:"COMP3620",date:"2026-05-05",co:"AI"},
+{title:"AI Assignment 2",sub:"COMP3620 — 100% late penalty",date:"2026-05-08",co:"AI"},
+{title:"Data Mining Ass 2",sub:"COMP8410",date:"2026-05-09",co:"DM"},
+{title:"AI Quiz 3 (Planning)",sub:"COMP3620",date:"2026-05-25",co:"AI"},
+{title:"AI Assignment 3",sub:"COMP3620 — 100% late penalty",date:"2026-05-29",co:"AI"},
+{title:"Logic Final Exam",sub:"COMP2620 — 50% of grade",date:"2026-06-10",co:"Logic"},
+{title:"AI Final Exam",sub:"COMP3620 — 45% of grade",date:"2026-06-12",co:"AI"},
+{title:"Data Mining Exam",sub:"COMP8410 — 3 hours",date:"2026-06-15",co:"DM"},
+];
+
+const DAY=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const coColor={AI:"red",DM:"teal",Logic:"blue",FYP:"purple"};
+
+// ── State ──────────────────────────────────────────────────────
+const tKey=()=>new Date().toISOString().slice(0,10);
+const load=()=>{try{return JSON.parse(localStorage.getItem("h_"+tKey()))||{}}catch(e){return{}}};
+const save=(s)=>localStorage.setItem("h_"+tKey(),JSON.stringify(s));
+let HS=load();
+
+// ── Streak (last 7 days) ──────────────────────────────────────
+function getStreak(){
+  const result=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k="h_"+d.toISOString().slice(0,10);
+    try{
+      const s=JSON.parse(localStorage.getItem(k))||{};
+      const done=Object.values(s).filter(Boolean).length;
+      result.push({date:d,done,isToday:i===0});
+    }catch(e){result.push({date:d,done:0,isToday:i===0})}
+  }
+  return result;
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function toMin(t){const[h,m]=t.split(":").map(Number);return(h===0?1440:h*60)+(m||0);}
+function daysTo(ds){const n=new Date();n.setHours(0,0,0,0);const d=new Date(ds);d.setHours(0,0,0,0);return Math.round((d-n)/864e5);}
+
+// ── Tab switching ─────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+t.dataset.tab).classList.add('active');
+    t.classList.add('active');
+    document.getElementById('content').scrollTop=0;
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════
+function render(){
+  const now=new Date(),dow=now.getDay(),cm=now.getHours()*60+now.getMinutes();
+  const hr=now.getHours();
+
+  // Date pill
+  document.getElementById('date-pill').textContent=
+    now.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+
+  // Install banner
+  if(!navigator.standalone&&/iPhone|iPad|iPod/.test(navigator.userAgent))
+    document.getElementById('install-banner').classList.add('show');
+
+  renderToday(dow,cm,hr);
+  renderHabits();
+  renderDeadlines();
+}
+
+function renderToday(dow,cm,hr){
+  const slots=SCHEDULE[dow]||[];
+  let nowIdx=-1;
+  for(let i=0;i<slots.length-1;i++){
+    if(cm>=toMin(slots[i].t)&&cm<toMin(slots[i+1].t)){nowIdx=i;break;}
+  }
+
+  const greet=hr<12?"Good morning":hr<17?"Good afternoon":"Good evening";
+  const nextUp=nowIdx>=0&&nowIdx<slots.length-1?slots[nowIdx+1]:null;
+
+  const nowCard=nowIdx>=0?`
+    <div class="now-card">
+      <div class="now-label">Happening now</div>
+      <div class="now-time">${slots[nowIdx].t}</div>
+      <div class="now-activity">${slots[nowIdx].a}</div>
+      ${nextUp?`<div class="now-next">Up next: ${nextUp.t} — ${nextUp.a}</div>`:''}
+    </div>`:'';
+
+  const slotHTML=slots.map((s,i)=>{
+    const past=i<nowIdx,isNow=i===nowIdx;
+    const col=COLORS[s.c]||"var(--text2)";
+    const tag=s.tag?`<span class="slot-tag" style="background:${COLORS[s.tc||s.c]}">${s.tag}</span>`:'';
+    return`<div class="slot ${past?'past':''} ${isNow?'now-slot':''}">
+      <div class="slot-time" style="color:${col}">${s.t}</div>
+      <div class="slot-line" style="background:${col}"><div style="position:absolute;top:0;left:-3px;width:8px;height:8px;border-radius:50%;background:${col}"></div></div>
+      <div class="slot-text">${s.a}${tag}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('page-today').innerHTML=`
+    <div class="greeting">${greet}, <span class="greeting-accent">An</span></div>
+    <div class="day-label">${DAY[dow]} · ${new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}</div>
+    ${nowCard}
+    <div class="card">
+      <div class="card-hdr"><span class="icon">📅</span> Today's Schedule</div>
+      ${slotHTML}
+    </div>`;
+
+  // Scroll to current
+  if(nowIdx>3){
+    setTimeout(()=>{
+      const el=document.querySelectorAll('#page-today .slot')[Math.max(0,nowIdx-1)];
+      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+    },350);
+  }
+}
+
+function renderHabits(){
+  const done=HABITS.filter(h=>HS[h.id]).length,total=HABITS.length;
+  const pct=Math.round(done/total*100);
+  const streak=getStreak();
+
+  const statsHTML=`
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val c-green">${done}</div><div class="stat-lbl">Done</div></div>
+      <div class="stat-card"><div class="stat-val c-accent">${total-done}</div><div class="stat-lbl">Left</div></div>
+      <div class="stat-card"><div class="stat-val c-blue">${pct}%</div><div class="stat-lbl">Score</div></div>
+    </div>`;
+
+  const streakHTML=`<div class="streak-row">${
+    streak.map(s=>{
+      const filled=s.done>=6;
+      return`<div class="streak-dot ${filled?'filled':''} ${s.isToday?'today':''}" title="${s.date.toLocaleDateString('en-AU',{weekday:'short'})}"></div>`;
+    }).join('')
+  }</div>`;
+
+  const habitsHTML=HABITS.map(h=>{
+    const d=!!HS[h.id];
+    return`<div class="habit" onclick="toggleH('${h.id}')">
+      <div class="hcheck ${d?'done':''}" style="${d?'background:'+COLORS[h.cc]:''}">
+        ${d?'✓':''}
+      </div>
+      <div class="htext ${d?'done':''}">${h.text}</div>
+      <span class="hcat" style="background:${COLORS[h.cc]}">${h.cat}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('page-habits').innerHTML=`
+    ${statsHTML}
+    <div class="card">
+      <div class="card-hdr"><span class="icon">✅</span> Today's Habits</div>
+      <div class="card-body">
+        <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+        <div class="prog-text">${done}/${total} completed</div>
+        <div style="margin-top:8px">
+          <div style="font-size:10px;color:var(--text3);font-weight:700;letter-spacing:0.5px">7-DAY STREAK</div>
+          ${streakHTML}
+        </div>
+      </div>
+      ${habitsHTML}
+    </div>`;
+}
+
+window.toggleH=function(id){
+  HS[id]=!HS[id];save(HS);renderHabits();
+  if(navigator.vibrate)navigator.vibrate(25);
+};
+
+function renderDeadlines(){
+  const sorted=DEADLINES.map(d=>({...d,days:daysTo(d.date)}))
+    .filter(d=>d.days>=0).sort((a,b)=>a.days-b.days);
+
+  const urgent=sorted.filter(d=>d.days<=3);
+  const urgentHTML=urgent.length>0?`
+    <div class="urgent-card">
+      <div class="urgent-icon">⚡</div>
+      <div>
+        <div class="urgent-title">${urgent[0].days===0?'DUE TODAY':urgent[0].days===1?'DUE TOMORROW':`${urgent[0].days} DAYS LEFT`} — ${urgent[0].title}</div>
+        <div class="urgent-sub">${urgent[0].sub}</div>
+      </div>
+    </div>`:'';
+
+  const nextDeadline=sorted[0];
+  const countdownHTML=nextDeadline?`
+    <div class="card" style="text-align:center;padding:20px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase">Next deadline</div>
+      <div style="font-size:42px;font-weight:800;letter-spacing:-2px;margin:4px 0;color:${nextDeadline.days<=3?'var(--red)':nextDeadline.days<=7?'var(--amber)':'var(--green)'}">${nextDeadline.days}</div>
+      <div style="font-size:12px;color:var(--text2)">days until <strong>${nextDeadline.title}</strong></div>
+    </div>`:'';
+
+  const itemsHTML=sorted.map(d=>{
+    const cc=coColor[d.co]||"accent";
+    const numCol=d.days<=3?'var(--red)':d.days<=7?'var(--amber)':'var(--green)';
+    return`<div class="dl-item">
+      <div class="dl-days"><div class="num" style="color:${numCol}">${d.days===0?'⚠':d.days}</div><span class="unit">${d.days===0?'today':'days'}</span></div>
+      <div class="dl-info"><div class="dl-title">${d.title}</div><div class="dl-sub">${d.sub}</div></div>
+      <span class="dl-badge bg-${cc}">${d.co}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('page-deadlines').innerHTML=`
+    ${urgentHTML}
+    ${countdownHTML}
+    <div class="sec">All Deadlines</div>
+    <div class="card">${itemsHTML}</div>`;
+}
+
+// ── Auto refresh ──────────────────────────────────────────────
+setInterval(()=>{
+  const n=new Date();
+  renderToday(n.getDay(),n.getHours()*60+n.getMinutes(),n.getHours());
+  renderDeadlines();
+},60000);
+
+render();
+</script>
+</body>
+</html>
