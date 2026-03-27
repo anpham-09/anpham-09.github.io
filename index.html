@@ -209,6 +209,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .hcheck.done{animation:checkPop 0.3s ease;}
 .htext{flex:1;font-size:13.5px;font-weight:500;transition:all 0.2s;}
 .htext.done{opacity:0.35;text-decoration:line-through;}
+.hdesc{font-size:11px;color:var(--text2);font-weight:400;margin-top:2px;line-height:1.35;text-decoration:none !important;}
+.htext.done .hdesc{text-decoration:none;opacity:0.7;}
 .hcat{
   font-size:9px;font-weight:700;padding:3px 7px;
   border-radius:6px;color:#fff;letter-spacing:0.3px;
@@ -420,18 +422,18 @@ const SCHEDULE={
 };
 
 const HABITS=[
-{id:"h1", text:"Wake up by 8:00 AM",            cat:"Sleep",    cc:"amber"},
-{id:"h2", text:"Morning journal (3 goals)",      cat:"Mind",     cc:"accent"},
-{id:"h3", text:"AI: lecture / mini-quiz",        cat:"AI",       cc:"red"},
-{id:"h4", text:"Logic: self-study block",        cat:"Logic",    cc:"blue"},
-{id:"h5", text:"DM: online quiz completed",      cat:"DM",       cc:"teal"},
-{id:"h6", text:"FYP: Thu check-in ×2",          cat:"FYP",      cc:"purple"},
-{id:"h7", text:"Freelance: coding work",         cat:"$",        cc:"purple"},
-{id:"h8", text:"Content: article progress",      cat:"$",        cc:"pink"},
-{id:"h9", text:"Exercise / Walk 20+ min",        cat:"Body",     cc:"green"},
-{id:"h10",text:"Pomodoro blocks completed",      cat:"Focus",    cc:"blue"},
-{id:"h11",text:"In bed by 12:00 AM",             cat:"Sleep",    cc:"amber"},
-{id:"h12",text:"No screens 30 min pre-bed",      cat:"Sleep",    cc:"amber"},
+{id:"h1", text:"Wake up by 8:00 AM",            cat:"Sleep",    cc:"amber",  desc:"Consistent wake time builds your routine. Target 5/7 days."},
+{id:"h2", text:"Morning journal (3 goals)",      cat:"Mind",     cc:"accent", desc:"Write 3 goals + gratitude. Sets direction for the day."},
+{id:"h3", text:"AI: lecture / mini-quiz",        cat:"AI",       cc:"red",    desc:"Review slides same evening. Best 10 of ~18 quizzes = 10%."},
+{id:"h4", text:"Logic: self-study block",        cat:"Logic",    cc:"blue",   desc:"Mon + Sun study blocks. Prep for next week's tutorial test."},
+{id:"h5", text:"DM: online quiz completed",      cat:"DM",       cc:"teal",   desc:"Mandatory weekly quiz counts for marks. Follow flipped cycle."},
+{id:"h6", text:"FYP: Thu check-in ×2",          cat:"FYP",      cc:"purple", desc:"Before 11am & after 2pm at Hive. 3% penalty per miss!"},
+{id:"h7", text:"Freelance: coding work",         cat:"$",        cc:"purple", desc:"Upwork/Fiverr client work. Build portfolio & income."},
+{id:"h8", text:"Content: article progress",      cat:"$",        cc:"pink",   desc:"Write, edit or publish on Medium. Every post builds your CV."},
+{id:"h9", text:"Exercise / Walk 20+ min",        cat:"Body",     cc:"green",  desc:"Walk, gym, or run. Exercise multiplies everything."},
+{id:"h10",text:"Pomodoro blocks completed",      cat:"Focus",    cc:"blue",   desc:"25 min on, 5 min off. Just start the timer."},
+{id:"h11",text:"In bed by 12:00 AM",             cat:"Sleep",    cc:"amber",  desc:"Consistent bedtime supports your 8AM wake-up goal."},
+{id:"h12",text:"No screens 30 min pre-bed",      cat:"Sleep",    cc:"amber",  desc:"Dim lights, read or meditate. Better sleep quality."},
 ];
 
 const DEADLINES=[
@@ -579,7 +581,7 @@ function renderHabits(){
       <div class="hcheck ${d?'done':''}" style="${d?'background:'+COLORS[h.cc]:''}">
         ${d?'✓':''}
       </div>
-      <div class="htext ${d?'done':''}">${h.text}</div>
+      <div class="htext ${d?'done':''}">${h.text}${h.desc?`<div class="hdesc">${h.desc}</div>`:''}</div>
       <span class="hcat" style="background:${COLORS[h.cc]}">${h.cat}</span>
     </div>`;
   }).join('');
